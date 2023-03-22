@@ -13,9 +13,9 @@ import java.util.Optional;
 @Repository
 public interface PeopleRepository extends JpaRepository<People, Integer> {
     @Query(nativeQuery = true, value = "SELECT * FROM dsd.people WHERE cpf = :cpf")
-    Optional<People> findPeopleByCpf(@Param("cpf") String cpf);
+    Optional<People> findByCpf(@Param("cpf") String cpf);
 
     @Modifying
     @Query(nativeQuery = true, value = "DELETE FROM dsd.people WHERE cpf = :cpf")
-    void deletePeopleByCpf(@Param("cpf") String cpf);
+    void deleteByCpf(@Param("cpf") String cpf);
 }

@@ -49,5 +49,11 @@ public class PeopleController {
                 ackRequest.sendAckData(peopleService.deletePeople(cpf));
             }
         });
+        socketIOServer.addEventListener("update_people", People.class, new DataListener<People>() {
+            @Override
+            public void onData(SocketIOClient socketIOClient, People people, final AckRequest ackRequest) throws Exception {
+                ackRequest.sendAckData(peopleService.updatePeople(people));
+            }
+        });
     }
 }
