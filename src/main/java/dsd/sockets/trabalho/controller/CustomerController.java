@@ -6,6 +6,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.DataListener;
 import dsd.sockets.trabalho.model.Customer;
 import dsd.sockets.trabalho.model.People;
+import dsd.sockets.trabalho.model.dto.CustomerDTO;
 import dsd.sockets.trabalho.service.CustomerService;
 import dsd.sockets.trabalho.service.SocketService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +45,9 @@ public class CustomerController {
                 ackRequest.sendAckData(customerService.deleteCustomer(cpf));
             }
         });
-        socketIOServer.addEventListener("update_customer", Customer.class, new DataListener<Customer>() {
+        socketIOServer.addEventListener("update_customer", CustomerDTO.class, new DataListener<CustomerDTO>() {
             @Override
-            public void onData(SocketIOClient socketIOClient, Customer customer, final AckRequest ackRequest) throws Exception {
+            public void onData(SocketIOClient socketIOClient, CustomerDTO customer, final AckRequest ackRequest) throws Exception {
                 ackRequest.sendAckData(customerService.updateCustomer(customer));
             }
         });

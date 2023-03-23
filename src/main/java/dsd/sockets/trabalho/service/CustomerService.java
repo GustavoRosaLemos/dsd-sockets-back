@@ -3,6 +3,7 @@ package dsd.sockets.trabalho.service;
 import dsd.sockets.trabalho.model.Customer;
 import dsd.sockets.trabalho.model.People;
 import dsd.sockets.trabalho.model.SocketResponse;
+import dsd.sockets.trabalho.model.dto.CustomerDTO;
 import dsd.sockets.trabalho.repository.CustomerRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,14 @@ public class CustomerService {
     public SocketResponse findAllCustomers() {
         try {
             List<Customer> peoples = customerRepository.findAll();
-            return new SocketResponse(false, "Busca realizada com sucesso!", peoples);
+            List<CustomerDTO> customerDTOS = peoples.stream().map(customer -> new CustomerDTO(
+                    customer.getCpf(),
+                    customer.getName(),
+                    customer.getAddress(),
+                    customer.getScore(),
+                    customer.getBonus()
+            )).toList();
+            return new SocketResponse(false, "Busca realizada com sucesso!", customerDTOS);
         } catch (Exception e) {
             return new SocketResponse(true, "Falha ao buscar por clientes!", null);
         }
@@ -42,7 +50,14 @@ public class CustomerService {
                 return new SocketResponse(true, "Sem clientes cadastrados.", null);
             }
             if (customer.isPresent()) {
-                return new SocketResponse(false, "Busca realizada com sucesso!", customer.get());
+                Customer resultCustomer = customer.get();
+                return new SocketResponse(false, "Busca realizada com sucesso!", new CustomerDTO(
+                        resultCustomer.getCpf(),
+                        resultCustomer.getName(),
+                        resultCustomer.getAddress(),
+                        resultCustomer.getScore(),
+                        resultCustomer.getBonus()
+                ));
             } else {
                 return new SocketResponse(true, "Cliente não encontrado!", null);
             }
@@ -66,7 +81,7 @@ public class CustomerService {
     }
 
     @Transactional
-    public SocketResponse updateCustomer(Customer customer) {
+    public SocketResponse updateCustomer(CustomerDTO customer) {
         try {
             Optional<Customer> result = customerRepository.findByCpf(customer.getCpf());
             if (result.isEmpty()) {
@@ -79,7 +94,13 @@ public class CustomerService {
             resultCustomer.setBonus(customer.getBonus());
             resultCustomer.setScore(customer.getScore());
             Customer savedCustomer = customerRepository.save(resultCustomer);
-            return new SocketResponse(false, "Cliente atualizado com sucesso!", savedCustomer);
+            return new SocketResponse(false, "Cliente atualizado com sucesso!", new CustomerDTO(
+                    savedCustomer.getCpf(),
+                    savedCustomer.getName(),
+                    savedCustomer.getAddress(),
+                    savedCustomer.getScore(),
+                    savedCustomer.getBonus()
+            ));
         } catch (Exception e) {
             return new SocketResponse(true, "Falha ao atualizar o cliente.", null);
         }

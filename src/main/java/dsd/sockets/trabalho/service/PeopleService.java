@@ -2,6 +2,7 @@ package dsd.sockets.trabalho.service;
 
 import dsd.sockets.trabalho.model.People;
 import dsd.sockets.trabalho.model.SocketResponse;
+import dsd.sockets.trabalho.model.dto.PeopleDTO;
 import dsd.sockets.trabalho.repository.PeopleRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,11 @@ public class PeopleService {
     public SocketResponse savePeople(People people) {
         try {
             People result = peopleRepository.save(people);
-            return new SocketResponse(false, "Pessoa adicionada com sucesso!", result);
+            return new SocketResponse(false, "Pessoa adicionada com sucesso!", new PeopleDTO(
+                    result.getCpf(),
+                    result.getName(),
+                    result.getAddress()
+            ));
         } catch (Exception e) {
             return new SocketResponse(true, "Falha ao adicionar pessoa.", null);
         }
@@ -28,7 +33,12 @@ public class PeopleService {
     public SocketResponse findAllPeople() {
         try {
             List<People> peoples = peopleRepository.findAll();
-            return new SocketResponse(false, "Busca realizada com sucesso!", peoples);
+            List<PeopleDTO> peopleDTOS = peoples.stream().map(people -> new PeopleDTO(
+                    people.getCpf(),
+                    people.getName(),
+                    people.getAddress()
+            )).toList();
+            return new SocketResponse(false, "Busca realizada com sucesso!", peopleDTOS);
         } catch (Exception e) {
             return new SocketResponse(true, "Falha ao buscar por pessoas!", null);
         }
@@ -41,7 +51,12 @@ public class PeopleService {
                 return new SocketResponse(true, "Sem pessoas cadastradas.", null);
             }
             if (people.isPresent()) {
-                return new SocketResponse(false, "Busca realizada com sucesso!", people.get());
+                People resultPeople = people.get();
+                return new SocketResponse(false, "Busca realizada com sucesso!", new PeopleDTO(
+                        resultPeople.getCpf(),
+                        resultPeople.getName(),
+                        resultPeople.getAddress()
+                ));
             } else {
                 return new SocketResponse(true, "Pessoa não encontrada!", null);
             }
@@ -65,7 +80,7 @@ public class PeopleService {
     }
 
     @Transactional
-    public SocketResponse updatePeople(People people) {
+    public SocketResponse updatePeople(PeopleDTO people) {
         try {
            Optional<People> result = peopleRepository.findByCpf(people.getCpf());
            if (result.isEmpty()) {
@@ -76,7 +91,11 @@ public class PeopleService {
            resultPeople.setName(people.getName());
            resultPeople.setAddress(people.getAddress());
           People savedPeople = peopleRepository.save(resultPeople);
-           return new SocketResponse(false, "Pessoa atualizada com sucesso!", savedPeople);
+           return new SocketResponse(false, "Pessoa atualizada com sucesso!", new PeopleDTO(
+                   savedPeople.getCpf(),
+                   savedPeople.getName(),
+                   savedPeople.getAddress()
+           ));
         } catch (Exception e) {
             return new SocketResponse(true, "Falha ao atualizar a pessoa.", null);
         }

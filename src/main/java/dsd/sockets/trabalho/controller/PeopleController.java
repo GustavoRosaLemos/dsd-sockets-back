@@ -8,6 +8,7 @@ import com.corundumstudio.socketio.listener.DataListener;
 import dsd.sockets.trabalho.model.Customer;
 import dsd.sockets.trabalho.model.People;
 import dsd.sockets.trabalho.model.SocketResponse;
+import dsd.sockets.trabalho.model.dto.PeopleDTO;
 import dsd.sockets.trabalho.repository.CustomerRepository;
 import dsd.sockets.trabalho.repository.PeopleRepository;
 import dsd.sockets.trabalho.service.PeopleService;
@@ -49,9 +50,9 @@ public class PeopleController {
                 ackRequest.sendAckData(peopleService.deletePeople(cpf));
             }
         });
-        socketIOServer.addEventListener("update_people", People.class, new DataListener<People>() {
+        socketIOServer.addEventListener("update_people", PeopleDTO.class, new DataListener<PeopleDTO>() {
             @Override
-            public void onData(SocketIOClient socketIOClient, People people, final AckRequest ackRequest) throws Exception {
+            public void onData(SocketIOClient socketIOClient, PeopleDTO people, final AckRequest ackRequest) throws Exception {
                 ackRequest.sendAckData(peopleService.updatePeople(people));
             }
         });

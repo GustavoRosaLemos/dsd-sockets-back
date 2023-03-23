@@ -3,6 +3,7 @@ package dsd.sockets.trabalho.service;
 import dsd.sockets.trabalho.model.Employee;
 import dsd.sockets.trabalho.model.People;
 import dsd.sockets.trabalho.model.SocketResponse;
+import dsd.sockets.trabalho.model.dto.EmployeeDTO;
 import dsd.sockets.trabalho.repository.EmployeeRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,14 @@ public class EmployeeService {
     public SocketResponse findAllEmployee() {
         try {
             List<Employee> employees = employeeRepository.findAll();
-            return new SocketResponse(false, "Busca realizada com sucesso!", employees);
+            List<EmployeeDTO> employeeDTOS = employees.stream().map(employee -> new EmployeeDTO(
+                    employee.getCpf(),
+                    employee.getName(),
+                    employee.getAddress(),
+                    employee.getSalary(),
+                    employee.getRole()
+            )).toList();
+            return new SocketResponse(false, "Busca realizada com sucesso!", employeeDTOS);
         } catch (Exception e) {
             return new SocketResponse(true, "Falha ao buscar por funcinarios!", null);
         }
@@ -42,7 +50,14 @@ public class EmployeeService {
                 return new SocketResponse(true, "Sem funcionarios cadastrados.", null);
             }
             if (employee.isPresent()) {
-                return new SocketResponse(false, "Busca realizada com sucesso!", employee.get());
+                Employee resultEmployee = employee.get();
+                return new SocketResponse(false, "Busca realizada com sucesso!", new EmployeeDTO(
+                        resultEmployee.getCpf(),
+                        resultEmployee.getName(),
+                        resultEmployee.getAddress(),
+                        resultEmployee.getSalary(),
+                        resultEmployee.getRole()
+                ));
             } else {
                 return new SocketResponse(true, "Funcionario não encontrado!", null);
             }
@@ -66,7 +81,7 @@ public class EmployeeService {
     }
 
     @Transactional
-    public SocketResponse updateEmployee(Employee employee) {
+    public SocketResponse updateEmployee(EmployeeDTO employee) {
         try {
             Optional<Employee> result = employeeRepository.findByCpf(employee.getCpf());
             if (result.isEmpty()) {
@@ -78,8 +93,14 @@ public class EmployeeService {
             resultEmployee.setAddress(employee.getAddress());
             resultEmployee.setRole(employee.getRole());
             resultEmployee.setSalary(employee.getSalary());
-            People savedEmployee = employeeRepository.save(resultEmployee);
-            return new SocketResponse(false, "Funcionario atualizado com sucesso!", savedEmployee);
+            Employee savedEmployee = employeeRepository.save(resultEmployee);
+            return new SocketResponse(false, "Funcionario atualizado com sucesso!", new EmployeeDTO(
+                    savedEmployee.getCpf(),
+                    savedEmployee.getName(),
+                    savedEmployee.getAddress(),
+                    savedEmployee.getSalary(),
+                    savedEmployee.getRole()
+            ));
         } catch (Exception e) {
             return new SocketResponse(true, "Falha ao atualizar funcionario.", null);
         }
